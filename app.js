@@ -1,28 +1,22 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
 const port = process.env.PORT || 5500;
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const bodyParser = require('body-parser')
 
 // set the view engine to ejs
 
-let path = require('path'); 
+let path = require('path');
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.use(bodyParser.urlencoded({ extended: true }))
+
 
 // use res.render to load up an ejs view file
 
 //type in result from the enneagram test
 let myTypeServer = "The Investigator";
-
-console.log(process.env.URI)
-
-app.get('/', function (req, res) {
-
-    res.render('index', {
-
-        myTypeClient: myTypeServer
-    });
-})    
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(process.env.URI, {
@@ -37,23 +31,61 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    
+    //await client.db("admin").command({ ping: 1 });
+
+    const result = await client.db("papa-database").collection("papa-collection").find().toArrary();
+
+    //console.log("cxnDB result: ", result);
+
+    return result;
+
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
+  
   } finally {
     // Ensures that the client will close when you finish/error
     await client.close();
   }
 }
 
-app.get('/', function (req, res) {
+//run().catch(console.dir);
+
+app.get('/read', async (req,res) => {
+
+  let myResultServer = await run();
+
+  console.log("myResultServer: ", myResultServer[0].userName);
   
-    res.send('Hello World from Express')
+  res.render('index', {
+
+    myTypeClient: myTypeServer,
+    myResultClient: myResultServer
+
+  });
+});
+
+
+// console.log(process.env.URI)
+
+app.get('/', function (req, res) {
+
+  res.render('index', {
+
+    myTypeClient: myTypeServer
+  });
+})
+
+
+app.get('/send', function (req, res) {
+
+  res.send('Hello World from Express <br><a href="/">home</a>')
 })
 
 // app.listen(3000)
 
 app.listen(port, () => {
-    
-  console.log(`mike app listening on port ${port}`)
+
+  console.log(`papa app listening on port ${port}`)
 })
