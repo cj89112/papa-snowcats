@@ -37,12 +37,12 @@ async function run() {
     // await client.db("admin").command({ ping: 1 });
     const result = await client.db("papa-database").collection("papa-collection").find().toArray();
 
-    //console.log("cxnDB result: ", result);
-
+    console.log("result:", result);
     return result; 
 
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    // await client.db("admin").command({ ping: 1 });
+    // console.log("Pinged your deployment. You successfully connected to MongoDB!");
+  
   } finally {
     // Ensures that the client will close when you finish/error
     await client.close();
